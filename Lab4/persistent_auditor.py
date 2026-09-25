@@ -13,6 +13,16 @@ def load_inventory():
     except FileNotFoundError:
         return 0, []
 
+def save_inventory(inventory, transaction_history):
+    data = {
+        "inventory": inventory,
+        "transactions": transaction_history
+    }
+
+    with open(INVENTORY_FILE, "w") as file:
+        json.dump(data, file, indent=4)
+
+    print("Inventory successfully saved to inventory.txt")
 
 def get_valid_input():
     # Count rejected entries during this input request.
@@ -66,6 +76,7 @@ def main():
         failed_entries += failed_attempts
 
         if stock == "quit":
+            save_inventory(inventory, transaction_history)
             exit_program = True
         else:
             inventory = process_delivery(inventory, stock)
