@@ -110,3 +110,17 @@ def update_stock(inventory):
 
     product["stock"] = get_valid_stock()
     print("Stock updated successfully!")
+
+    
+def load_inventory():
+    try:
+        with open(INVENTORY_FILE, "r") as file:
+            inventory = json.load(file)
+
+        print("inventory.json found.")
+        print("Inventory loaded successfully.")
+        return inventory
+
+    except FileNotFoundError:
+        print("inventory.json not found. Starting with empty inventory.")
+        return []
