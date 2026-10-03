@@ -111,7 +111,7 @@ def update_stock(inventory):
     product["stock"] = get_valid_stock()
     print("Stock updated successfully!")
 
-    
+
 def load_inventory():
     try:
         with open(INVENTORY_FILE, "r") as file:
@@ -124,3 +124,72 @@ def load_inventory():
     except FileNotFoundError:
         print("inventory.json not found. Starting with empty inventory.")
         return []
+
+def save_inventory(inventory):
+    with open(INVENTORY_FILE, "w") as file:
+        json.dump(inventory, file, indent=4)
+
+    print("Inventory saved successfully to inventory.json.")
+
+
+def main():
+    print("=" * 40)
+    print("INVENTORY MANAGEMENT SYSTEM")
+    print("=" * 40)
+
+    inventory = load_inventory()
+
+    while True:
+        print("\n----------- MENU -----------")
+        print("1. Display All Products")
+        print("2. Add Product")
+        print("3. Update Stock")
+        print("4. Search Product")
+        print("5. Save Inventory")
+        print("6. Exit")
+        print("----------------------------")
+
+        option = input("Enter option: ").strip()
+
+        if option == "1":
+            display_all(inventory)
+
+        elif option == "2":
+            add_product(inventory)
+
+        elif option == "3":
+            update_stock(inventory)
+
+        elif option == "4":
+            print("\nSearch Product")
+            product_id = input("Enter Product ID: ").strip().upper()
+            product = search_product(inventory, product_id)
+
+            if product is None:
+                print("Product not found.")
+            else:
+                print("\nProduct Found")
+                print("-" * 40)
+                print("ID:", product["id"])
+                print("Name:", product["name"])
+                print(f"Price: ${product['price']:.2f}")
+                print("Stock:", product["stock"])
+                print("-" * 40)
+
+        elif option == "5":
+            print("Saving inventory...")
+            save_inventory(inventory)
+
+        elif option == "6":
+            print("Saving inventory before exit...")
+            save_inventory(inventory)
+            print("Thank you for using Inventory Management System.")
+            print("Program terminated.")
+            break
+
+        else:
+            print("Invalid option. Please enter a number from 1 to 6.")
+
+
+if __name__ == "__main__":
+    main()
