@@ -1,0 +1,42 @@
+classDiagram
+    class Product {
+        <<abstract>>
+        -product_id
+        -name
+        -price
+        -stock
+        +get_product_id()
+        +update_stock(quantity)
+        +display_information()
+        +to_dict()
+        +get_fulfilment_info()*
+    }
+    class CanBeShipped {
+        <<interface>>
+        +calculate_shipping_cost()*
+    }
+    class PhysicalProduct {
+        -weight
+        +display_information()
+        +get_fulfilment_info()
+        +calculate_shipping_cost()
+        +to_dict()
+    }
+    class DigitalProduct {
+        -download_size
+        +display_information()
+        +get_fulfilment_info()
+        +to_dict()
+    }
+    class Inventory {
+        -products
+        +add_product(product)
+        +search_product(product_id)
+        +update_stock(product_id, quantity)
+        +display_all()
+        +get_products()
+    }
+    Product <|-- PhysicalProduct
+    Product <|-- DigitalProduct
+    CanBeShipped <|.. PhysicalProduct
+    Inventory "1" o-- "0..*" Product : manages
