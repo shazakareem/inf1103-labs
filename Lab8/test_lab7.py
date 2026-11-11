@@ -7,6 +7,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from product import Product
+from supplier import Supplier
 from physical_product import PhysicalProduct
 from digital_product import DigitalProduct
 from can_be_shipped import CanBeShipped
@@ -17,21 +18,22 @@ from main import add_product_from_input
 
 class Lab7Tests(unittest.TestCase):
     def setUp(self):
-        self.physical = PhysicalProduct(" p001 ", "Laptop", 1200.0, 15, 2.0)
-        self.digital = DigitalProduct("D001", "Python eBook", 19.99, 100, 15.5)
+        self.supplier = Supplier("S001", "Test Supplier", "test@example.com")
+        self.physical = PhysicalProduct(" p001 ", "Laptop", 1200.0, 15, 2.0, self.supplier)
+        self.digital = DigitalProduct("D001", "Python eBook", 19.99, 100, 15.5, self.supplier)
         self.inventory = Inventory()
         self.inventory.add_product(self.physical)
         self.inventory.add_product(self.digital)
 
     def test_product_is_abstract(self):
         with self.assertRaises(TypeError):
-            Product("P000", "Generic", 1.0, 1)
+            Product("P000", "Generic", 1.0, 1, self.supplier)
 
     def test_incomplete_subclass_is_abstract(self):
         class IncompleteProduct(Product):
             pass
         with self.assertRaises(TypeError):
-            IncompleteProduct("P000", "Incomplete", 1.0, 1)
+            IncompleteProduct("P000", "Incomplete", 1.0, 1, self.supplier)
 
     def test_interface_is_abstract(self):
         with self.assertRaises(TypeError):
@@ -40,7 +42,7 @@ class Lab7Tests(unittest.TestCase):
             def get_fulfilment_info(self):
                 return "Physical shipping"
         with self.assertRaises(TypeError):
-            MissingShipping("P000", "Incomplete", 1.0, 1)
+            MissingShipping("P000", "Incomplete", 1.0, 1, self.supplier)
 
     def test_display_reuses_common_details_and_adds_type_details(self):
         for product, expected in [(self.physical, "Weight: 2 kg"),
@@ -60,7 +62,7 @@ class Lab7Tests(unittest.TestCase):
     def test_shipping_varies_with_weight(self):
         self.assertIsInstance(self.physical, CanBeShipped)
         self.assertEqual(self.physical.calculate_shipping_cost(), 10.0)
-        lighter = PhysicalProduct("P002", "Mouse", 25.5, 50, 0.1)
+        lighter = PhysicalProduct("P002", "Mouse", 25.5, 50, 0.1, self.supplier)
         self.assertEqual(lighter.calculate_shipping_cost(), 0.5)
         self.assertNotIsInstance(self.digital, CanBeShipped)
         self.assertFalse(hasattr(self.digital, "calculate_shipping_cost"))
@@ -102,7 +104,7 @@ class Lab7Tests(unittest.TestCase):
         for cls, args in cases:
             with self.subTest(cls=cls.__name__, args=args):
                 with self.assertRaises(ValueError):
-                    cls(*args)
+                    cls(*args, self.supplier)
 
     def test_json_round_trip_restores_types_and_all_attributes(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -134,8 +136,8 @@ class Lab7Tests(unittest.TestCase):
 
     def test_menu_creates_both_types(self):
         inventory = Inventory()
-        for answers in [["1", "P5", "Guitar", "100", "2", "3"],
-                        ["2", "D5", "Music", "10", "5", "25"]]:
+        for answers in [["1", "P5", "Guitar", "100", "2", "S001", "Test Supplier", "test@example.com", "3"],
+                        ["2", "D5", "Music", "10", "5", "S001", "Test Supplier", "test@example.com", "25"]]:
             with patch("builtins.input", side_effect=answers), redirect_stdout(io.StringIO()):
                 add_product_from_input(inventory)
         self.assertIsInstance(inventory.search_product("P5"), PhysicalProduct)

@@ -1,10 +1,12 @@
 from physical_product import PhysicalProduct
 from digital_product import DigitalProduct
 from can_be_shipped import CanBeShipped
+from supplier import Supplier
+from inventory import Inventory
 from storage import load_inventory, save_inventory
 
 
-def get_valid_stock():
+def get_valid_stock() -> int:
     while True:
         try:
             quantity = int(input("Stock Quantity: ").strip())
@@ -18,7 +20,7 @@ def get_valid_stock():
             print("Please enter a non-negative whole number.")
 
 
-def add_product_from_input(inventory):
+def add_product_from_input(inventory: Inventory) -> None:
     print("1. Physical product")
     print("2. Digital product")
     product_type = input("Choose product type (1 or 2): ").strip()
@@ -30,18 +32,24 @@ def add_product_from_input(inventory):
     price = float(input("Price: ").strip())
     stock = get_valid_stock()
 
+    supplier = Supplier(
+        input("Supplier ID: ").strip(),
+        input("Supplier name: ").strip(),
+        input("Supplier email: ").strip(),
+    )
+
     if product_type == "1":
         weight = float(input("Weight (kg): ").strip())
-        product = PhysicalProduct(product_id, name, price, stock, weight)
+        product = PhysicalProduct(product_id, name, price, stock, weight, supplier)
     else:
         download_size = float(input("Download size (MB): ").strip())
-        product = DigitalProduct(product_id, name, price, stock, download_size)
+        product = DigitalProduct(product_id, name, price, stock, download_size, supplier)
 
     inventory.add_product(product)
     print("Product added successfully!")
 
 
-def update_stock_from_input(inventory):
+def update_stock_from_input(inventory: Inventory) -> None:
     product_id = input("Enter Product ID: ").strip().upper()
     product = inventory.search_product(product_id)
 
@@ -58,7 +66,7 @@ def update_stock_from_input(inventory):
     print("Stock updated successfully!")
 
 
-def main():
+def main() -> None:
     print("=" * 40)
     print("OOP INVENTORY MANAGEMENT SYSTEM")
     print("=" * 40)
