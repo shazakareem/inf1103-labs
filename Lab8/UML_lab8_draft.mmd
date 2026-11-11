@@ -1,0 +1,75 @@
+classDiagram
+    direction TB
+
+    class Product {
+        <<abstract>>
+        -product_id: str
+        -name: str
+        -stock: int
+        +price: float
+        +supplier: Supplier
+        +get_product_id() str
+        +update_stock(quantity: int) None
+        +display_information() None
+        +get_fulfilment_info() str*
+        +to_dict() dict
+    }
+
+    class PhysicalProduct {
+        -weight: float
+        +display_information() None
+        +get_fulfilment_info() str
+        +calculate_shipping_cost() float
+        +to_dict() dict
+    }
+
+    class DigitalProduct {
+        -download_size: float
+        +display_information() None
+        +get_fulfilment_info() str
+        +to_dict() dict
+    }
+
+    class CanBeShipped {
+        <<interface>>
+        +calculate_shipping_cost() float*
+    }
+
+    class Supplier {
+        +supplier_id: str
+        +name: str
+        +contact_email: str
+        +display_information() None
+    }
+
+    class Inventory {
+        -products: List~Product~
+        +add_product(product: Product) None
+        +remove_product(product_id: str) None
+        +find_product(product_id: str) Product or None
+        +search_product(product_id: str) Product or None
+        +update_stock(product_id: str, quantity: int) None
+        +display_all() None
+        +get_products() Tuple~Product~
+    }
+
+    class Order {
+        +order_id: str
+        -order_lines: List~OrderLine~
+        +add_order_line(product: Product, quantity: int) None
+        +calculate_total() float
+    }
+
+    class OrderLine {
+        +product: Product
+        +quantity: int
+        +calculate_subtotal() float
+    }
+
+    Product <|-- PhysicalProduct
+    Product <|-- DigitalProduct
+    CanBeShipped <|.. PhysicalProduct
+    Supplier "1" -- "0..*" Product : supplies
+    Inventory "0..*" o-- "0..*" Product : holds
+    Order "1" *-- "0..*" OrderLine : creates
+    OrderLine "0..*" -- "1" Product : refers to
