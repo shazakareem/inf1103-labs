@@ -1,0 +1,145 @@
+from product_factory import ProductFactory
+from input_helpers import get_positive_float
+from csv_loader import load_products
+from pathlib import Path
+from can_be_shipped import CanBeShipped
+from supplier import Supplier
+from inventory import Inventory
+from storage import load_inventory, save_inventory
+
+
+def get_valid_stock() -> int:
+    while True:
+        try:
+            quantity = int(input("Stock Quantity: ").strip())
+
+            if quantity < 0:
+                raise ValueError
+
+            return quantity
+
+        except ValueError:
+            print("Please enter a non-negative whole number.")
+
+
+def add_product_from_input(inventory: Inventory) -> None:
+    print("1. Physical product")
+    print("2. Digital product")
+    product_type = input("Choose product type (1 or 2): ").strip()
+    if product_type not in ("1", "2"):
+        raise ValueError("Please choose 1 or 2 for the product type.")
+
+    product_id = input("Product ID: ").strip().upper()
+    name = input("Product Name: ").strip()
+    price = get_positive_float("Price: ")
+    stock = get_valid_stock()
+
+    supplier = Supplier(
+        input("Supplier ID: ").strip(),
+        input("Supplier name: ").strip(),
+        input("Supplier email: ").strip(),
+    )
+
+    if product_type == "1":
+        weight = get_positive_float("Weight (kg): ")
+        product = ProductFactory.create("physical", product_id, name, price, stock, supplier, weight=weight)
+    else:
+        download_size = get_positive_float("Download size (MB): ")
+        product = ProductFactory.create("digital", product_id, name, price, stock, supplier, download_size=download_size)
+
+    inventory.add_product(product)
+    print("Product added successfully!")
+
+
+def update_stock_from_input(inventory: Inventory) -> None:
+    product_id = input("Enter Product ID: ").strip().upper()
+    product = inventory.search_product(product_id)
+
+    if product is None:
+        print("Product not found.")
+        return
+
+    product.display_information()
+    print("Enter the new total stock quantity.")
+
+    quantity = get_valid_stock()
+
+    inventory.update_stock(product_id, quantity)
+    print("Stock updated successfully!")
+
+
+def main() -> None:
+    print("=" * 40)
+    print("OOP INVENTORY MANAGEMENT SYSTEM")
+    print("=" * 40)
+
+    try:
+        inventory = load_inventory()
+
+    except (OSError, ValueError, KeyError, TypeError) as error:
+        print("Could not load inventory:", error)
+        return
+
+    while True:
+        print("\n----------- MENU -----------")
+        print("1. Display All Products")
+        print("2. Add Product")
+        print("3. Update Stock")
+        print("4. Search Product")
+        print("5. Save Inventory")
+        print("6. Exit")
+        print("7. Load Products from CSV")
+        print("----------------------------")
+
+        option = input("Enter option: ").strip()
+
+        try:
+            if option == "1":
+                inventory.display_all()
+
+            elif option == "2":
+                add_product_from_input(inventory)
+
+            elif option == "3":
+                update_stock_from_input(inventory)
+
+            elif option == "4":
+                product_id = input(
+                    "Enter Product ID: "
+                ).strip().upper()
+
+                product = inventory.search_product(product_id)
+
+                if product is None:
+                    print("Product not found.")
+                else:
+                    product.display_information()
+                    print(product.get_fulfilment_info())
+                    if isinstance(product, CanBeShipped):
+                        print(f"Shipping per unit: ${product.calculate_shipping_cost():.2f}")
+
+            elif option == "5":
+                save_inventory(inventory)
+
+            elif option == "6":
+                save_inventory(inventory)
+                print("Thank you. Program terminated.")
+                break
+
+            elif option == "7":
+                path = input("CSV path (Enter for products.csv): ").strip()
+                supplier = Supplier("CSV", "CSV Supplier", "")
+                load_products(path or Path(__file__).with_name("products.csv"), inventory, supplier)
+
+            else:
+                print("Invalid option. Please enter 1 to 7.")
+
+        except ValueError as error:
+            print("Invalid entry:", error)
+
+        except OSError as error:
+            print("Could not save inventory:", error)
+
+
+if __name__ == "__main__":
+    main()

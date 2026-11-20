@@ -1,0 +1,58 @@
+[
+    {
+        "id": "P001",
+        "name": "Laptop",
+        "price": 1200.0,
+        "stock": 15,
+        "type": "physical",
+        "weight": 2.0
+    },
+    {
+        "id": "P002",
+        "name": "Mouse",
+        "price": 25.5,
+        "stock": 50,
+        "type": "physical",
+        "weight": 0.1
+    },
+    {
+        "id": "P003",
+        "name": "Keyboard",
+        "price": 45.0,
+        "stock": 30,
+        "type": "physical",
+        "weight": 0.8
+    },
+    {
+        "id": "P004",
+        "name": "Monitor",
+        "price": 299.99,
+        "stock": 10,
+        "type": "physical",
+        "weight": 4.0
+    },
+    {
+        "id": "D001",
+        "name": "Python eBook",
+        "price": 19.99,
+        "stock": 100,
+        "type": "digital",
+        "download_size": 15.5
+    },
+    {
+        "id": "P123",
+        "name": "Pam",
+        "price": 67.0,
+        "stock": 2,
+        "type": "physical",
+        "weight": 67.0
+    },
+    {
+        "id": "S321",
+        "name": "Sha",
+        "price": 76.0,
+        "stock": 2,
+        "type": "digital",
+        "download_size": 76.0
+    }
+]
